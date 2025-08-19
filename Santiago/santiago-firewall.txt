@@ -1,0 +1,194 @@
+
+config system global
+    set hostname "SANTIAGO"
+    set pre-login-banner enable
+    set post-login-banner enable
+    set login-banner "Cybershield7 - Unauthorized Access is Prohibited"
+end
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+config system interface
+    edit "port2"
+        set alias "WAN"
+        set role wan
+        set mode static
+        set ip 192.168.162.127 255.255.255.0
+        set allowaccess ping http https ssh
+    next
+
+
+    edit "vlan10"
+        set alias "VLAN10"
+        set vdom "root"
+        set interface "port1"
+        set vlanid 10
+        set mode static
+        set ip 10.128.0.1 255.255.255.224
+        set allowaccess ping
+    next
+
+    edit "vlan20"
+        set alias "VLAN20"
+        set vdom "root"
+        set interface "port1"
+        set vlanid 20
+        set mode static
+        set ip 10.128.0.33 255.255.255.240
+        set allowaccess ping
+    next
+
+    edit "vlan30"
+        set alias "VLAN30"
+        set vdom "root"
+        set interface "port1"
+        set vlanid 30
+        set mode static
+        set ip 10.128.0.49 255.255.255.240
+        set allowaccess ping
+    next
+
+    edit "vlan77"
+        set alias "VLAN77"
+        set vdom "root"
+        set interface "port1"
+        set vlanid 77
+
+        set mode static
+        set ip 10.128.0.81 255.255.255.240
+        set allowaccess ping
+    next
+
+    edit "vlan88"
+        set alias "VLAN88"
+        set vdom "root"
+        set interface "port1"
+        set vlanid 88
+        set mode static
+        set ip 10.128.0.65 255.255.255.240
+        set allowaccess ping https ssh
+    next
+end
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+config system dhcp server
+    edit 10
+        set interface "vlan10"
+        set default-gateway 10.128.0.1
+        set netmask 255.255.255.224
+        set dns-service manual
+        set dns-server1 10.128.0.71
+        set domain "cybershield7.net"
+        config ip-range
+            edit 1
+                set start-ip 10.128.0.2
+                set end-ip   10.128.0.30
+            next
+        end
+    next
+
+    edit 20
+        set interface "vlan20"
+        set default-gateway 10.128.0.33
+        set netmask 255.255.255.240
+        set dns-service manual
+        set dns-server1 10.128.0.71
+        set domain "cybershield7.net"
+        config ip-range
+            edit 1
+                set start-ip 10.128.0.34
+                set end-ip   10.128.0.46
+            next
+        end
+    next
+
+    edit 30
+        set interface "vlan30"
+        set default-gateway 10.128.0.49
+        set netmask 255.255.255.240
+        set dns-service manual
+        set dns-server1 10.128.0.71
+        set domain "cybershield7.net"
+        config ip-range
+            edit 1
+                set start-ip 10.128.0.50
+                set end-ip   10.128.0.62
+            next
+        end
+       end
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+config firewall address
+    edit "VLAN10_NET"
+        set subnet 10.128.0.0 255.255.255.224
+    next
+    edit "VLAN20_NET"
+        set subnet 10.128.0.32 255.255.255.240
+    next
+    edit "VLAN30_NET"
+        set subnet 10.128.0.48 255.255.255.240
+    next
+    edit "VLAN88_NET"
+        set subnet 10.128.0.64 255.255.255.240
+    next
+    edit "VLAN77_NET"
+        set subnet 10.128.0.80 255.255.255.240
+    next
+end
+
+config firewall addrgrp
+    edit "NAT_R"
+        set member "VLAN10_NET" "VLAN20_NET" "VLAN30_NET" "VLAN88_NET" "VLAN77_NET"
+    next
+end
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+config firewall policy
+    edit 1
+        set name "LANs_to_Internet"
+        set srcintf "vlan10" "vlan20" "vlan30" "vlan88" "vlan77"
+        set dstintf "port2"
+        set srcaddr "NAT_R"
+        set dstaddr "all"
+        set action accept
+        set schedule "always"
+        set service "ALL"
+        set nat enable
+    next
+end
+
+
+config firewall policy
+    edit 2
+        set name "InterVLAN"
+        set srcintf "vlan10" "vlan20" "vlan30" "vlan88" "vlan77"
+        set dstintf "vlan10" "vlan20" "vlan30" "vlan88" "vlan77"
+        set srcaddr "NAT_R"
+        set dstaddr "NAT_R"
+        set action accept
+        set schedule "always"
+        set service "ALL"
+        set nat disable
+    next
+end
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+config router static
+    edit 1
+        set dst 0.0.0.0 0.0.0.0
+        set gateway 192.168.162.2
+        set device "port2"
+    next
+end
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+--------------------
+IMPORTANTE |
+-------------------
+
+NOTA: Los túneles VPN no están incluidos en la configuración, ya que fueron creados mediante las interfaces gráficas de los firewalls. En esta implementación, el firewall de Santiago actúa como hub, mientras que las sucursales de La Romana, Santo Domingo, Barahona y Puerto Plata funcionan como spokes.
