@@ -1,0 +1,153 @@
+
+---------
+BARAHONA  |
+---------
+
+VLAN 10 - TI
+10.152.0.128   -   255.255.255.192
+10.152.0.129   Default-Gateway
+
+VLAN 20 - BLUE TEAM
+10.152.0.0     -   255.255.255.128
+10.152.0.1     Default-Gateway
+
+VLAN 30 - RED TEAM
+10.152.0.208   -   255.255.255.248
+10.152.0.209   Default-Gateway
+
+VLAN 88 - ADMIN (Nativa)
+10.152.0.192   -   255.255.255.240
+10.152.0.193   Default-Gateway
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+----------
+R1
+----------
+
+hostname BARAHONA
+line console 0
+password cisco
+login
+line vty 0 4
+password cisco
+login
+exit
+
+enable secret class
+banner motd #Cybershield7 - Unauthorized Access is Prohibited#
+service password-encryption
+
+interface e0/0
+ no shutdown
+
+interface e0/0.10
+ encapsulation dot1Q 10
+ ip address 10.152.0.129 255.255.255.192
+ ip nat inside
+ no shutdown
+
+interface e0/0.20
+ encapsulation dot1Q 20
+ ip address 10.152.0.1 255.255.255.128
+ ip nat inside
+ no shutdown
+
+interface e0/0.30
+ encapsulation dot1Q 30
+ ip address 10.152.0.209 255.255.255.248
+ ip nat inside
+ no shutdown
+
+interface e0/0.88
+ encapsulation dot1Q 88 native
+ ip address 10.152.0.193 255.255.255.240
+ ip nat inside
+ no shutdown
+
+interface e0/1
+ ip address dhcp
+ ip nat outside
+ no shutdown
+
+ip dhcp excluded-address 10.152.0.129 10.152.0.191
+ip dhcp pool VLAN10
+ network 10.152.0.128 255.255.255.192
+ default-router 10.152.0.129
+ dns-server 10.128.0.82
+ domain-name cybershield7.net
+
+ip dhcp excluded-address 10.152.0.1 10.152.0.127
+ip dhcp pool VLAN20
+ network 10.152.0.0 255.255.255.128
+ default-router 10.152.0.1
+ dns-server 10.128.0.82
+ domain-name cybershield7.net
+
+ip dhcp excluded-address 10.152.0.209 10.152.0.215
+ip dhcp pool VLAN30
+ network 10.152.0.208 255.255.255.248
+ default-router 10.152.0.209
+ dns-server 10.128.0.82
+ domain-name cybershield7.net
+
+ip route 0.0.0.0 0.0.0.0 192.168.162.2
+
+ip access-list standard NAT_BAR
+ permit 10.152.0.0 255.255.255.0
+
+ip nat inside source list NAT_BAR interface e0/1 overload
+------------------------------------------------------------------------------------------------------------------------------
+
+----------
+SW2
+----------
+
+en
+conf t
+
+hostname SW2
+line console 0
+password cisco
+login
+line vty 0 4
+password cisco
+login
+exit
+
+enable secret class
+banner motd #Cybershield7 - Unauthorized Access is Prohibited#
+service password-encryption
+
+vlan 10
+ name TI
+vlan 20
+ name RED_TEAM
+vlan 30
+ name BLUE_TEAM
+vlan 88
+ name ADMINISTRATIVA
+
+
+interface e0/0
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport trunk native vlan 88
+switchport trunk allowed vlan 10,20,30,88
+
+int range e0/1-3,e1/0-3, e2/0-3, e3/0-3
+sw mode access 
+sw access vlan 88
+
+interface e1/0
+sw mode access 
+sw access vlan 20
+
+interface vlan 88
+ ip address 10.152.0.194 255.255.255.240
+ no shutdown
+ip default-gateway 10.152.0.193
+
+
+
