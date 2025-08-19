@@ -1,0 +1,162 @@
+--------------
+SANTO DOMINGO  |
+--------------
+
+VLAN 10
+10.136.0.0    -    255.255.255.128
+10.136.0.1   Default-Gateway
+ 
+VLAN 20
+10.136.1.128     -    255.255.255.192
+10.136.1.129     Default-Gateway
+
+VLAN 30
+10.136.1.0     -      255.255.255.128
+10.136.1.1    Default-Gateway
+
+VLAN 88    
+10.136.0.128    -    255.255.255.128
+10.136.0.129   Default-Gateway
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+----
+R1  |
+----
+
+hostname SANTO_DOMINGO
+line console 0
+password cisco
+login
+line vty 0 4
+password cisco
+login
+exit
+
+enable secret class
+banner motd #Cybershield7 - Unauthorized Access is Prohibited#
+service password-encryption
+
+
+
+int e0/0
+no sh
+
+int e0/1
+no sh
+ip address dhcp
+ip nat outside
+
+int e0/0.10
+encapsulation dot1q 10
+ip address 10.136.0.1 255.255.255.128
+ip nat inside
+no sh
+
+int e0/0.20
+encapsulation dot1q 20
+ip address 10.136.1.129 255.255.255.192
+ip nat inside
+no sh
+
+int e0/0.30
+encapsulation dot1q 30
+ip address 10.136.1.1 255.255.255.128
+ip nat inside
+no sh
+
+int e0/0.88
+encapsulation dot1q 88
+ip address 10.136.0.128 255.255.255.128
+ip nat inside
+no sh
+
+ip dhcp excluded-address 10.136.0.1
+ip dhcp excluded-address 10.136.0.127
+ip dhcp pool VLAN10
+network 10.136.0.0 255.255.255.128
+default-router 10.136.0.1
+dns-server 10.128.0.82
+domain-name cybershield7.net
+exit
+
+ip dhcp excluded-address 10.136.1.129
+ip dhcp excluded-address 10.136.1.191
+ip dhcp pool VLAN20
+network 10.136.1.128 255.255.255.192
+default-router 10.136.1.129
+dns-server 10.128.0.82
+domain-name cybershield7.net
+exit
+
+ip dhcp excluded-address 10.136.1.1
+ip dhcp excluded-address 10.136.1.127
+ip dhcp pool VLAN30
+network 10.136.1.0 255.255.255.128
+default-router 10.136.1.1
+dns-server 10.128.0.82
+domain-name cybershield7.net
+exit
+
+ip route 0.0.0.0 0.0.0.0 192.168.162.2
+
+ip access-list standard NAT_SD
+permit 10.136.0.0 0.0.1.255  
+exit
+
+ip nat inside source list NAT_SD interface e0/1 overload
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-----
+SW4  |
+-----
+
+en
+conf t
+
+
+hostname SW13
+line console 0
+password cisco
+login
+line vty 0 4
+password cisco
+login
+exit
+
+enable secret class
+banner motd #  Cybershield7 - Unauthorized Access is Prohibited#
+service password-encryption
+
+
+vlan 10
+name TI
+vlan 20
+name RED_TEAM
+vlan 30
+name BLUE_TEAM
+vlan 88
+name ADMINISTRATIVA
+
+int range e0/1-3,e1/0-3, e2/0-3, e3/0-3
+sw mode access 
+sw access vlan 88
+
+int e1/0
+sw mode access 
+sw access vlan 30
+
+int e0/0
+sw trunk encapsulation dot1q
+switchport mode trunk
+sw trunk native vlan 88
+sw trunk allowed vlan 10,20,30,88
+
+
+int vlan 88
+ip address 10.136.0.254 255.255.255.128
+no sh
+exit
+
+ip default-gateway 10.136.0.129
+
