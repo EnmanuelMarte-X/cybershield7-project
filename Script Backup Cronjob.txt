@@ -1,0 +1,27 @@
+cronjob
+
+#!/bin/bash
+
+# Fecha y hora actual
+FECHA=$(date +'%Y-%m-%d_%H-%M-%S')
+
+# Carpeta donde se guardarán los respaldos
+DESTINO="/backups"
+
+# Nombre del archivo de respaldo
+ARCHIVO="respaldo_servidor_${FECHA}.tar.gz"
+
+# Crear carpeta de destino si no existe
+mkdir -p "$DESTINO"
+
+# Respaldar el sistema excluyendo directorios temporales y montajes virtuales
+tar -czpf "${DESTINO}/${ARCHIVO}" \
+    --exclude=/proc \
+    --exclude=/tmp \
+    --exclude=/mnt \
+    --exclude=/sys \
+    --exclude=/dev \
+    --exclude=/run \
+    --exclude=/media \
+    --exclude=/lost+found \
+    /
