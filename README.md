@@ -7,12 +7,7 @@
 
 
 
-
-
-
 Este repositorio compartido contiene todos los archivos, configuraciones y evidencias del Proyecto Final realizado con GNS3 bajo la marca CyberShield7.
-
-
 
 
 
@@ -20,16 +15,7 @@ A continuación, se detallan las carpetas, su contenido y la utilidad de cada un
 
 
 
-
-
-
-
 ##### **📂 Estructura de Carpetas**
-
-
-
-
-
 
 
 ###### ---------
@@ -93,14 +79,7 @@ Servicios de correo, Radius y FTP en ejecución.
 
 
 
-
-
-
 ##### **📂 Estructura de Documentos**
-
-
-
-
 
 
 
@@ -131,28 +110,15 @@ Un archivo Firewall.txt con la configuración del firewall.
 **Sucursales configuradas:**
 
 
+– Barahona
 
-Barahona
+– Puerto Plata
 
+– Romana
 
+– Santiago
 
-Puerto Plata
-
-
-
-Romana
-
-
-
-Santiago
-
-
-
-Santo Domingo
-
-
-
-
+– Santo Domingo
 
 
 
@@ -178,8 +144,6 @@ Configuración del equipo Main y del de Backup en Keepalive, con la IP que compa
 
 
 
-
-
 Documentación del esquema de red:
 
 
@@ -202,13 +166,7 @@ Subneteo realizado con FLSM y VLSM para cada sucursal.
 
 
 
-
-
 Script automatizado para realizar respaldos cada domingo.
-
-
-
-
 
 
 
@@ -220,20 +178,16 @@ No fue posible subir los archivos OVA, ya que Terabox no permite subir archivos 
 
 
 
-
-
-
-
 ###### **🔑 Accesos**
 
 **Evidence Video Link:**
 https://youtu.be/SyGjdD-zusE
 
 
-**Pagina Web:**
+**Webaite:**
 
 
-https://cybershield7.net/
+[ https://cybershield7.net/ ]
 
 
 
